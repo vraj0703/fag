@@ -4,43 +4,48 @@ from store import StoreBase
 from load import load_from_github, load_from_local_path
 from logger import logger
 
-
 class KnowledgeBase:
     def __init__(self):
         """A simple, synchronous initializer that does no I/O."""
         self.store: StoreBase | None = None
 
     async def _populate(self):
-        """Asynchronously creates the store and populates it with data."""
+        """Asynchronously creates the store and populates it with structured data."""
         self.store = await StoreBase.create()
+
+        # If the store was loaded from disk, it's already populated.
+        if self.store.index is not None and len(self.store.index.docstore._dict) > 0:
+            logger.info("KnowledgeBase is already populated from the saved index on disk.")
+            return
 
         sources = config["knowledge_base"]["sources"]
         if not sources:
             logger.warning("No sources provided to populate the KnowledgeBase.")
             return
 
-        logger.info("Populating KnowledgeBase from sources...")
+        logger.info("Populating KnowledgeBase from sources for the first time...")
+        all_chunks_to_add = [] # Collect all chunks for efficient batch processing
+
         for source in sources:
             documents = load_from_github(source) if source.startswith("http") else load_from_local_path(source)
 
-            # --- Use intelligent splitting ---
             for doc in documents:
-                logger.info(f"Splitting file: {doc['path']}")
-                logical_chunks = await split_str_into_logical_chunks(doc['content'])
+                logger.info(f"Performing structured split on file: {doc['path']}")
+                # Use the new async, Pydantic-validated splitting function
+                structured_analysis = await split_str_into_logical_chunks(doc['content'])
 
-                if not logical_chunks:
-                    logger.warning(
-                        f"Could not split file into chunks: {doc['path']}. Adding whole file content instead.")
+                if not structured_analysis:
+                    logger.warning(f"Could not get structured analysis for: {doc['path']}. Adding whole file instead.")
                     if doc.get('content') and doc.get('path'):
-                        await self.store.add_document(doc['content'], doc['path'])
+                        all_chunks_to_add.append((doc['content'], doc['path']))
                     continue
 
-                # Add the overall file purpose to the knowledge base
-                if 'file_purpose' in logical_chunks:
-                    await self.store.add_document(logical_chunks['file_purpose'], doc['path'])
+                # Add the overall file purpose from the validated Pydantic model
+                if 'file_purpose' in structured_analysis:
+                    all_chunks_to_add.append((structured_analysis['file_purpose'], doc['path']))
 
-                # Add each individual logical unit (class, function, etc.)
-                for unit in logical_chunks.get('logical_units', []):
+                # Add each individual logical unit from the validated Pydantic model
+                for unit in structured_analysis.get('logical_units', []):
                     # Create a detailed text chunk for embedding
                     chunk_content = (
                         f"Unit Name: {unit.get('name', 'N/A')}\n"
@@ -49,19 +54,33 @@ class KnowledgeBase:
                     )
                     # Create a unique path for this chunk for later reference
                     chunk_path = f"{doc['path']}#{unit.get('name', 'unknown_unit')}"
-                    await self.store.add_document(chunk_content, chunk_path)
+                    all_chunks_to_add.append((chunk_content, chunk_path))
 
-            logger.info(f"KnowledgeBase populated with {self.store.index.ntotal} documents.")
+        # Add all collected chunks to the LangChain/FAISS store in a single, efficient batch operation
+        if all_chunks_to_add:
+            await self.store.add_documents(all_chunks_to_add)
+            await self.store.save() # Save the newly populated store to disk
+            logger.info(f"KnowledgeBase populated and saved with {len(self.store.index.docstore._dict)} documents.")
         else:
-            logger.warning("No sources provided to populate the KnowledgeBase.")
+            logger.warning("No document chunks were created from the sources.")
 
     async def search(self, query, k=5):
         """Searches for the k most similar documents to a query."""
+        if not self.store:
+            logger.error("Store is not initialized. Call pre_heat() first.")
+            return []
         return await self.store.search(query, k)
+
+    async def save(self):
+        """Saves the knowledge base."""
+        if not self.store:
+            logger.error("Store is not initialized. Cannot save.")
+            return
+        return await self.store.save()
 
     @classmethod
     async def pre_heat(cls):
         """The async factory to create and return a fully populated instance."""
-        kb = cls()
-        await kb._populate()
-        return kb
+        instance = cls()
+        await instance._populate()
+        return instance

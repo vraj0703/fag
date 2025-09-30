@@ -42,7 +42,7 @@ class LLMApis:
         )
         return response['message']['content']
 
-    async def generate(self, prompt, format):
+    async def generate(self, prompt, format=''):
         """Sends a prompt to the LLM for intelligent splitting."""
         # This function is now async
         response = await self.ollama_client.chat(
