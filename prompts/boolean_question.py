@@ -1,15 +1,17 @@
 reasoning_prompt = """
-        You are a reasoning assistant. Answer the following question strictly in JSON:
+        You are an honest and strict reasoning assistant. Answer the following question strictly in JSON:
         
-        Question: {prompt}
+        Statement: ```{statement}```
         
-        Respond only in this format:
-        {
+        Question: ```{question}```
+        
+        Respond only in JSON format as follows:
+        ```{
             "answer": true | false | null
-        }
+        }```
         
         Use:
-        - true  → if the question is correct
-        - false → if the question is incorrect
+        - true  → if the statement is correct
+        - false → if the statement is incorrect
         - null  → if it's uncertain, ambiguous, or cannot be determined
     """
