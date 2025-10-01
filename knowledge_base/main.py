@@ -7,16 +7,22 @@ from logger import logger
 
 async def knowledge_base_test():
     """
-    The main entry point for a command-line chat bot that uses the RAG system.
+    The main entry point for a command-line chatbot that uses this knowledge base built on RAG system.
     """
-    logger.info("Initializing RAG system and KnowledgeBase...")
+    logger.info("################################")
+    logger.info("Initializing knowledge base...")
+    logger.info("################################")
 
-    # This single line will trigger the entire data population process:
-    # loading, splitting, and embedding documents, or loading from a saved index.
+    """
+    This single line will trigger the entire data population process:
+    loading, splitting, embedding and storing documents, or loading from a saved index files.
+    """
     kb = await KnowledgeBase.pre_heat()
 
-    logger.info("KnowledgeBase initialization complete. The bot is ready to chat.")
-    print("\nHello! I am a RAG-powered chat bot. Ask me anything about the documents in your knowledge base.")
+    logger.info("Knowledge base initialization complete. The bot is ready to chat.")
+    print("\nHello! I am a RAG-powered with configured knowledge base chat bot."
+          "Ask me anything about the documents in your knowledge base.")
+
     print("Type 'exit' or 'quit' to end the session.")
 
     while True:

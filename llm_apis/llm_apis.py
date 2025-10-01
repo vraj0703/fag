@@ -2,6 +2,7 @@ import ollama
 
 from logger import logger
 from config import config
+from prompts.boolean_question import reasoning_prompt
 
 
 class LLMApis:
@@ -55,3 +56,18 @@ class LLMApis:
             format=format,
         )
         return response
+
+    async def booleanQuestion(self, prompt, format=''):
+        """
+            Ask the LLM a yes/no/uncertain question.
+            Always returns True, False, or None.
+        """
+        final_prompt = reasoning_prompt.format(prompt=prompt)
+
+        response = await self.ollama_client.chat(
+            model=self.generation_model,
+            messages=[
+                {'role': 'user', 'content': final_prompt}
+            ],
+            format=format,
+        )

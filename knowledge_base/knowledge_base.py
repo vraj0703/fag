@@ -1,6 +1,6 @@
 from config import config
 from split import split_str_into_logical_chunks
-from store import StoreBase
+from embed_store import StoreBase
 from load import load_from_github, load_from_local_path
 from logger import logger
 
