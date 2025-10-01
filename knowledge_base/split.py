@@ -11,7 +11,7 @@ async def split_str_into_logical_chunks(file_content: str) -> Optional[dict]:
         content_preview = file_content[:120].replace('\n', ' ') + '...'
         logger.info(f"Sending content to LLM for structured analysis: '{content_preview}'")
         # The response content should be a JSON string that we can parse
-        response_text = await llm_apis.split(PROMPT_TO_READ_DART_FILE, content_preview,
+        response_text = await llm_apis.split(PROMPT_TO_READ_DART_FILE, file_content,
                                              DartFileAnalysis.model_json_schema())
 
         # Validate the response against our Pydantic model

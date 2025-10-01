@@ -4,6 +4,7 @@ from embed_store import StoreBase
 from load import load_from_github, load_from_local_path
 from logger import logger
 
+
 class KnowledgeBase:
     def __init__(self):
         """A simple, synchronous initializer that does no I/O."""
@@ -24,10 +25,11 @@ class KnowledgeBase:
             return
 
         logger.info("Populating KnowledgeBase from sources for the first time...")
-        all_chunks_to_add = [] # Collect all chunks for efficient batch processing
+        all_chunks_to_add = []  # Collect all chunks for efficient batch processing
 
         for source in sources:
-            documents = load_from_github(source) if source.startswith("http") else load_from_local_path(source)
+            documents = await load_from_github(source) \
+                if source.startswith("http") else await load_from_local_path(source)
 
             for doc in documents:
                 logger.info(f"Performing structured split on file: {doc['path']}")
@@ -59,7 +61,7 @@ class KnowledgeBase:
         # Add all collected chunks to the LangChain/FAISS store in a single, efficient batch operation
         if all_chunks_to_add:
             await self.store.add_documents(all_chunks_to_add)
-            await self.store.save() # Save the newly populated store to disk
+            await self.store.save()  # Save the newly populated store to disk
             logger.info(f"KnowledgeBase populated and saved with {len(self.store.index.docstore._dict)} documents.")
         else:
             logger.warning("No document chunks were created from the sources.")

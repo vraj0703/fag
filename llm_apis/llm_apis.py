@@ -17,15 +17,6 @@ class LLMApis:
             logger.fatal(f"Could not initialize Ollama client. Is Ollama running? Error: {e}")
             self.ollama_client = None
 
-    async def embedding(self, text_chunk):
-        """Generates an embedding for a given piece of text."""
-        # This function is now async
-        response = await self.ollama_client.embed(
-            model=self.embedding_model,
-            input=text_chunk
-        )
-        return response.embeddings
-
     async def split(self, prompt, file_content, format='json'):
         """Sends a prompt to the LLM for intelligent splitting."""
         if not self.ollama_client:
@@ -56,7 +47,7 @@ class LLMApis:
             # based on the schema of our Pydantic model.
             format=format,
         )
-        return response
+        return response['message']['content']
 
     async def boolean_question(self, statement, question, format=BooleanUnit.model_json_schema()):
         """Ask the LLM the question about the statement.
