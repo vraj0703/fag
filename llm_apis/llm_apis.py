@@ -1,9 +1,7 @@
 import ollama
 
-from logger import logger
 from config import config
-from models.boolean_unit import BooleanUnit
-from prompts.boolean_question import reasoning_prompt
+from logger import logger
 
 
 class LLMApis:
@@ -48,34 +46,3 @@ class LLMApis:
             format=format,
         )
         return response['message']['content']
-
-    async def boolean_question(self, statement, question, format=BooleanUnit.model_json_schema()):
-        """Ask the LLM the question about the statement.
-
-       Args:
-           statement: statement for the question. eg: "exit from the chat"
-           question: question to be validated against the statement. eg: "Does user wanted to exit?"
-           format: format in which llm returns always BooleanUnit.model_json_schema().
-
-       Returns:
-           True, False, None.
-
-       Raises:
-           any exception returns None
-       """
-        final_prompt = reasoning_prompt.format(statement=statement, question=question)
-        logger.info(f"asking question: {question} about the statement: with prompt {final_prompt}")
-        try:
-            response = await self.ollama_client.chat(
-                model=self.generation_model,
-                messages=[
-                    {'role': 'user', 'content': final_prompt}
-                ],
-                format=format,
-            )
-
-            response = BooleanUnit.model_validate_json(response)
-            return response.answer()
-        except Exception as e:
-            logger.error(f"Failed to ask question: {question} about the statement: {statement} with error {e}")
-            return None

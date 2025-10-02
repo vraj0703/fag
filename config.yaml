@@ -3,6 +3,7 @@ models:
   embedding: nomic-embed-text:v1.5
   split: phi3
   generation: codellama:7b
+  command_generation: llama3
 
 allowed_extensions:
   - .dart
