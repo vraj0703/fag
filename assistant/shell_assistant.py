@@ -3,8 +3,8 @@ import sys
 import platform
 from typing import List
 
-from langchain_community.chat_models import ChatOllama
 from langchain_core.output_parsers import PydanticOutputParser
+from langchain_community.chat_models import ChatOllama
 from langchain_core.prompts import PromptTemplate
 from pydantic import BaseModel, Field
 
@@ -82,11 +82,11 @@ class ShellAssistant:
 
         try:
             # CRITICAL FIX: Use create_subprocess_exec for security
-            process = await asyncio.create_subprocess_exec(
-                dto.command,
-                *dto.args,
+            full_command = f"{dto.command} {' '.join(dto.args)}"
+            process = await asyncio.create_subprocess_shell(
+                full_command,
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
             )
             stdout, stderr = await process.communicate()
 
@@ -105,7 +105,7 @@ class ShellAssistant:
 
 
 # Main flow
-async def main():
+async def test_shell_assistant():
     if len(sys.argv) < 2:
         print("create a folder name `vishal`")
         return
@@ -134,4 +134,4 @@ async def main():
 
 if __name__ == "__main__":
     # Example: python your_script_name.py "create a flutter project called test_flutter"
-    asyncio.run(main())
+    asyncio.run(test_shell_assistant())

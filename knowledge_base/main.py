@@ -1,6 +1,6 @@
 import asyncio
 
-from knowledge_base import KnowledgeBase
+from knowledge_base.knowledge_base import KnowledgeBase
 from llm_apis.apis import llm_apis
 from logger import logger
 
