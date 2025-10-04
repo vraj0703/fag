@@ -1,0 +1,26 @@
+{
+  "name": "assets",
+  "purpose": "Contains all the assets required in project",
+  "children": [
+    {
+      "name": "icons",
+      "purpose": "Local data caching and storage implementation."
+    },
+    {
+      "name": "images",
+      "purpose": "Platform channels specific to this feature."
+    },
+    {
+      "name": "jsons",
+      "purpose": "Dependency injection setup for the data layer of this feature."
+    },
+    {
+      "name": "typefaces",
+      "purpose": "Data Transfer Objects (DTOs) for remote and local data sources."
+    },
+    {
+      "name": "textures",
+      "purpose": "API clients, network requests, and communication with remote sources."
+    }
+  ]
+}

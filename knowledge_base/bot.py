@@ -5,7 +5,7 @@ from knowledge_base.knowledge_base import KnowledgeBase
 from logger import logger
 
 
-async def main():
+async def kb_bot():
     """
     Main entry point to initialize the RAG system and run the code generation assistant.
     """
@@ -52,4 +52,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(kb_bot())

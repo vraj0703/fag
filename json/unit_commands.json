@@ -1,0 +1,96 @@
+[
+  {
+    "command": "ask_user",
+    "description": "ai model ask user to get the output parameters",
+    "output": [
+      {
+        "name": "seed_color",
+        "description": "seed color is used to generate the color scheme"
+      },
+      {
+        "name": "brand_colors",
+        "description": "list of brand colors"
+      }
+    ]
+  },
+  {
+    "command": "generate_color_schemes",
+    "description": "run internal tool to generate color schemes",
+    "input": [
+      {
+        "name": "seed_color",
+        "description": "seed color is used to generate the color scheme"
+      }
+    ],
+    "output": [
+      {
+        "name": "light",
+        "description": "light color scheme based on seed color"
+      },
+      {
+        "name": "dark",
+        "description": "dark color scheme based on seed color"
+      },
+      {
+        "name": "custom_colors",
+        "description": "list of brand color wrapper object"
+      }
+    ]
+  },
+  {
+    "command": "execute_command",
+    "description": "create a json file in name <assets/app_colors.json>, and dump color scheme generated",
+    "input": [
+      {
+        "name": "light",
+        "description": "light color scheme based on seed color"
+      },
+      {
+        "name": "dark",
+        "description": "dark color scheme based on seed color"
+      },
+      {
+        "name": "custom_colors",
+        "description": "list of brand color wrapper object"
+      }
+    ],
+    "output": [
+      {
+        "name": "file",
+        "description": "new json file <assets/app_colors.json> with color scheme dumped"
+      }
+    ]
+  },
+  {
+    "command": "generate_code",
+    "description": "generate code for AppColors",
+    "input": [
+      {
+        "name": "vectors",
+        "description": "search vector in the knowledge base and attach with the prompt"
+      }
+    ],
+    "output": [
+      {
+        "name": "generated_code",
+        "description": "generated code for AppColors"
+      }
+    ]
+  },
+  {
+    "command": "execute_command",
+    "description": "create a new file <project/theme/colors/app_colors.dart> and dump the code in the new file",
+    "input": [
+      {
+        "name": "generated_code",
+        "description": "generated code for AppColors"
+      }
+    ],
+    "output": [
+      {
+        "name": "file",
+        "description": "new file <project/theme/colors/app_colors.dart>"
+      }
+    ]
+  }
+]

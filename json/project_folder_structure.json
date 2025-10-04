@@ -1,0 +1,131 @@
+{
+  "name": "<feature_name>",
+  "purpose": "A specific feature of the application",
+  "children": [
+    {
+      "name": "data",
+      "purpose": "The data layer of the feature, responsible for handling data operations.",
+      "children": [
+        {
+          "name": "caches",
+          "purpose": "Local data caching and storage implementation."
+        },
+        {
+          "name": "channels",
+          "purpose": "Platform channels specific to this feature."
+        },
+        {
+          "name": "dependencies",
+          "purpose": "Dependency injection setup for the data layer of this feature."
+        },
+        {
+          "name": "models",
+          "purpose": "Data Transfer Objects (DTOs) for remote and local data sources."
+        },
+        {
+          "name": "networks",
+          "purpose": "API clients, network requests, and communication with remote sources."
+        },
+        {
+          "name": "routes",
+          "purpose": "API routes, endpoints, and network-related constants."
+        },
+        {
+          "name": "use_cases",
+          "purpose": "Implementation of the abstract use cases defined in the domain layer."
+        }
+      ]
+    },
+    {
+      "name": "domain",
+      "purpose": "The domain layer of the feature, containing the core business logic.",
+      "children": [
+        {
+          "name": "constants",
+          "purpose": "Domain-specific constants and values."
+        },
+        {
+          "name": "entities",
+          "purpose": "Business objects and core models of the application."
+        },
+        {
+          "name": "enums",
+          "purpose": "Domain-specific enumerations."
+        },
+        {
+          "name": "exceptions",
+          "purpose": "Custom exceptions and error handling for the domain layer."
+        },
+        {
+          "name": "metrics",
+          "purpose": "Domain-specific metrics or analytics-related code."
+        },
+        {
+          "name": "repositories",
+          "purpose": "Abstract contracts or interfaces for data sources, to be implemented by the data layer."
+        },
+        {
+          "name": "theme",
+          "purpose": "Domain-specific theme overrides and styles.",
+          "children": [
+            {
+              "name": "icons",
+              "purpose": "Icons specific to the domain."
+            },
+            {
+              "name": "style",
+              "purpose": "Styling specific to the domain."
+            },
+            {
+              "name": "text",
+              "purpose": "Text styles and typography specific to the domain."
+            },
+            {
+              "name": "color",
+              "purpose": "Color specific to the domain."
+            }
+          ]
+        },
+        {
+          "name": "utils",
+          "purpose": "Domain-specific utility functions."
+        }
+      ]
+    },
+    {
+      "name": "presentation",
+      "purpose": "The presentation layer of the feature, responsible for the UI and user interaction.",
+      "children": [
+        {
+          "name": "states",
+          "purpose": "State management logic for the feature.",
+          "children": [
+            {
+              "name": "blocs",
+              "purpose": "Business Logic Components (BLoCs) or other state management controllers."
+            },
+            {
+              "name": "states",
+              "purpose": "State classes and models used by the BLoCs."
+            },
+            {
+              "name": "events",
+              "purpose": "Events that trigger state changes in the BLoCs."
+            }
+          ]
+        },
+        {
+          "name": "widgets",
+          "purpose": "UI components and widgets for the feature.",
+          "children": [
+            {
+              "name": "entrypoint",
+              "purpose": "The main widget or screen that serves as the entry point for the feature."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
