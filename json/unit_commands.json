@@ -5,35 +5,31 @@
     "output": [
       {
         "name": "seed_color",
-        "description": "seed color is used to generate the color scheme"
-      },
-      {
-        "name": "brand_colors",
-        "description": "list of brand colors"
+        "type": "color hex code",
+        "prompt": "seed color is used to generate the color scheme"
       }
     ]
   },
   {
-    "command": "generate_color_schemes",
+    "command": "generate_material_scheme",
     "description": "run internal tool to generate color schemes",
     "input": [
       {
         "name": "seed_color",
-        "description": "seed color is used to generate the color scheme"
+        "type": "color hex code",
+        "prompt": "seed color is used to generate the color scheme"
       }
     ],
     "output": [
       {
         "name": "light",
-        "description": "light color scheme based on seed color"
+        "type": "light color scheme in map",
+        "prompt": "light color scheme based on seed color"
       },
       {
         "name": "dark",
-        "description": "dark color scheme based on seed color"
-      },
-      {
-        "name": "custom_colors",
-        "description": "list of brand color wrapper object"
+        "type": "light color scheme in map",
+        "prompt": "dark color scheme based on seed color"
       }
     ]
   },
@@ -43,21 +39,20 @@
     "input": [
       {
         "name": "light",
-        "description": "light color scheme based on seed color"
+        "type": "light color scheme in map",
+        "prompt": "light color scheme based on seed color"
       },
       {
         "name": "dark",
-        "description": "dark color scheme based on seed color"
-      },
-      {
-        "name": "custom_colors",
-        "description": "list of brand color wrapper object"
+        "type": "light color scheme in map",
+        "prompt": "dark color scheme based on seed color"
       }
     ],
     "output": [
       {
-        "name": "file",
-        "description": "new json file <assets/app_colors.json> with color scheme dumped"
+        "name": "app_colors.json",
+        "type": "file",
+        "prompt": "new json file <assets/app_colors.json> with color scheme dumped"
       }
     ]
   },
@@ -66,14 +61,16 @@
     "description": "generate code for AppColors",
     "input": [
       {
-        "name": "vectors",
-        "description": "search vector in the knowledge base and attach with the prompt"
+        "name": "top 5 similar search",
+        "type": "vector",
+        "prompt": "search vector in the knowledge base and attach with the prompt"
       }
     ],
     "output": [
       {
         "name": "generated_code",
-        "description": "generated code for AppColors"
+        "type": "string",
+        "prompt": "generated code for AppColors"
       }
     ]
   },
@@ -83,13 +80,15 @@
     "input": [
       {
         "name": "generated_code",
-        "description": "generated code for AppColors"
+        "type": "string",
+        "prompt": "generated code for AppColors"
       }
     ],
     "output": [
       {
-        "name": "file",
-        "description": "new file <project/theme/colors/app_colors.dart>"
+        "name": "app_colors.dart",
+        "type": "file",
+        "prompt": "new file <project/theme/colors/app_colors.dart>"
       }
     ]
   }

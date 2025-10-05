@@ -90,7 +90,7 @@ class ShellAssistant:
             )
             stdout, stderr = await process.communicate()
 
-            print("✅ Command finished.")
+            print("Command finished.")
             if stdout:
                 print(f"\n--- STDOUT ---\n{stdout.decode().strip()}")
             if stderr:
@@ -98,10 +98,10 @@ class ShellAssistant:
 
         except FileNotFoundError:
             print(
-                f"❌ Error: Command not found: '{dto.command}'. Please ensure it is installed and in your PATH."
+                f"Error: Command not found: '{dto.command}'. Please ensure it is installed and in your PATH."
             )
         except Exception as e:
-            print(f"❌ An unexpected error occurred: {e}")
+            print(f"An unexpected error occurred: {e}")
 
 
 # Main flow
@@ -117,12 +117,12 @@ async def test_shell_assistant():
     command_dto = await assistant.generate_command(user_input)
 
     if command_dto:
-        print(f"\n💡 AI Suggestion: {command_dto.command} {' '.join(command_dto.args)}")
+        print(f"\nAI Suggestion: {command_dto.command} {' '.join(command_dto.args)}")
 
         # 2. SUGGESTION: Use the is_dangerous flag for a safety check
         if command_dto.is_dangerous:
             confirm = input(
-                "⚠️ This command is flagged as potentially dangerous. Continue? (y/n): "
+                "⚠This command is flagged as potentially dangerous. Continue? (y/n): "
             ).lower()
             if confirm != "y":
                 print("Execution cancelled.")
