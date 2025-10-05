@@ -27,7 +27,7 @@ async def load_from_local_path(root_path, allowed_extensions=None):
 
                 async def read_file(path=full_path):  # default arg avoids late binding
                     try:
-                        async with aiofiles.open(full_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        async with aiofiles.open(path, 'r') as f:
                             content = await f.read()
                             return {"path": path, "content": content}
                     except Exception as e:
@@ -70,7 +70,7 @@ async def crawl_folder(root_path, allowed_extensions=config["allowed_extensions"
         string += "--------------------------------"
         string += f"{document["path"]}"
         string += "--------------------------------"
-        string += document["content"]
+        string += f"{document["content"]}"
         string += "--------------------------------"
     print(string)
     return string
