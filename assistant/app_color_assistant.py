@@ -10,7 +10,7 @@ from material_color_utilities import theme_from_color, Variant
 class MaterialColorSchemeGenerator:
     """A class to have an intelligent, multi-turn conversation to gather information."""
 
-    def generate_material_schemes(self, seed_hex: str, variant=Variant.VIBRANT, contrast_level: float = 0.25):
+    async def generate_material_schemes(self, seed_hex: str, variant=Variant.VIBRANT, contrast_level: float = 0.25):
         """
         Convert a seed color (hex) to Material Design color schemes (light & dark).
 

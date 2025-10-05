@@ -1,4 +1,5 @@
 import json
+import re
 from logger import logger
 
 
@@ -22,13 +23,34 @@ class BaseManager:
             logger.error(f"FATAL: Could not load or parse manager file at '{managers_file_path}'. Error: {e}")
             self.managers = []
 
+    def _get_nested_value(self, data_dict, path):
+        """Safely retrieves a nested value from a dictionary using a dot-separated path."""
+        keys = path.split('.')
+        value = data_dict
+        for key in keys:
+            if isinstance(value, dict) and key in value:
+                value = value[key]
+            else:
+                return None  # Path not found
+        return value
+
     def _format_input(self, value, context):
-        """Recursively formats input strings, replacing placeholders."""
+        """
+        Recursively formats input strings, replacing complex placeholders like
+        {{context.user_inputs.seed_color}} with values from the context dictionary.
+        """
         if isinstance(value, str):
-            for key, val in context.items():
-                placeholder = f"{{{{context.{key}}}}}"
-                # For simplicity, we'll handle basic object->string conversion
-                value = value.replace(placeholder, str(val))
+            # Find all placeholders like {{context.some.nested.value}}
+            placeholders = re.findall(r"\{\{context\.(.*?)\}\}", value)
+            for placeholder in placeholders:
+                # Retrieve the nested value from the context
+                retrieved_value = self._get_nested_value(context, placeholder)
+                if retrieved_value is not None:
+                    # If the placeholder is the entire string, replace it directly to preserve type
+                    if value == f"{{{{context.{placeholder}}}}}":
+                        return retrieved_value
+                    # Otherwise, perform a string replacement
+                    value = value.replace(f"{{{{context.{placeholder}}}}}", str(retrieved_value))
             return value
         elif isinstance(value, list):
             return [self._format_input(item, context) for item in value]
@@ -47,7 +69,6 @@ class BaseManager:
 
     async def run_flow(self, manager_config: dict):
         """Executes the step-by-step pipeline for a given manager configuration."""
-        # --- FIX: Add a check to ensure manager_config is not None ---
         if not manager_config:
             logger.error("run_flow was called with an invalid manager configuration (None). Aborting flow.")
             return
@@ -73,16 +94,14 @@ class BaseManager:
                 logger.error(f"Method '{method_name}' not found on assistant '{assistant_name}'. Aborting flow.")
                 return
 
-            # Prepare inputs by formatting placeholders with context
             inputs = self._format_input(step.get('inputs', {}), context)
 
-            # Execute the assistant's method
             result = await method(**inputs)
 
-            # Store the output in the context for the next step
             for result_key, context_key in step.get('outputs', {}).items():
-                if result_key == "result":  # A special key for the direct output
+                if result_key == "result":
                     context[context_key] = result
                     logger.info(f"Stored step output into context as '{context_key}'")
 
         logger.info(f"✅ Flow '{manager_config['name']}' completed successfully!")
+

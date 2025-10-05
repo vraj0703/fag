@@ -1,33 +1,50 @@
 import asyncio
-
-from assistant.app_color_assistant import MaterialColorSchemeGenerator
-from assistant.ask_user_assistant import AskUserAssistant
-from assistant.generation_assistant import CodeGenerationAssistant
+from logger import logger
 from knowledge_base.knowledge_base import KnowledgeBase
-from managers.color_manager import ColorManager
+from assistant.ask_user_assistant import AskUserAssistant
+from assistant.app_color_assistant import MaterialColorSchemeGenerator
+from assistant.generation_assistant import CodeGenerationAssistant
+from managers.base_manager import BaseManager
 from managers.file_manager import FileManager
+
 
 async def main_bot():
     # 1. Initialize the KnowledgeBase (this handles loading/building the RAG index)
     kb = await KnowledgeBase.pre_heat()
 
-    # 2. Initialize all the individual assistant tools
-    ask_assistant = AskUserAssistant()
-    scheme_generator = MaterialColorSchemeGenerator()
-    code_generator = CodeGenerationAssistant(knowledge_base=kb)
-    file_manager = FileManager()
+    # 2. Create a dictionary of all available assistant tools
+    assistants = {
+        "ask_user": AskUserAssistant(),
+        "scheme_generator": MaterialColorSchemeGenerator(),
+        "code_generator": CodeGenerationAssistant(knowledge_base=kb),
+        "file_manager": FileManager(),
+    }
 
-    # 3. Initialize the ColorManager with its required tools
-    color_manager = ColorManager(
-        ask_assistant=ask_assistant,
-        scheme_generator=scheme_generator,
-        code_generator=code_generator,
-        file_manager=file_manager
-    )
+    # 3. Initialize the BaseManager with the JSON config and the assistants
+    managers_path = "json/managers.json"  # Or construct an absolute path
+    base_manager = BaseManager(managers_file_path=managers_path, assistants=assistants)
 
-    print("\nHello! I am FAG, your Flutter App Generation assistant.")
+    manager_to_run = base_manager.find_manager("create color scheme")
+    await base_manager.run_flow(manager_to_run)
 
-    await color_manager.run_flow()
+    # # The main application loop
+    # while True:
+    #     user_request = input("\n> ").strip()
+    #     if user_request.lower() in ['exit', 'quit']:
+    #         break
+    #
+    #     # --- Command Routing via BaseManager ---
+    #     manager_to_run = base_manager.find_manager(user_request)
+    #
+    #     if manager_to_run:
+    #         # If a specific manager is found (e.g., "create color scheme"), run its flow
+    #         await base_manager.run_flow(manager_to_run)
+    #     else:
+    #         # If no manager matches, default to a general chat action
+    #         logger.info("No specific manager found. Handling as a general chat query...")
+    #         answer = await assistants["code_generator"].generate(user_request)
+    #         print(f"\n🤖 {answer}")
+
 
 if __name__ == "__main__":
     asyncio.run(main_bot())
