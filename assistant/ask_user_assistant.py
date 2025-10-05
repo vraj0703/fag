@@ -16,7 +16,7 @@ class AnalysisResult(BaseModel):
     status: Literal["VALID", "INVALID", "NEEDS_CONFIRMATION"] = Field(description="The status of the user's input.")
     value: Any | None = Field(None,
                               description="The final, extracted value if the status is VALID or NEEDS_CONFIRMATION.")
-    reasoning: Optional[str] = Field(description="A brief explanation of the AI's decision.")
+    reasoning: Optional[str] = Field(None, description="A brief explanation of the AI's decision, especially if the status is not VALID.")
     clarification_question: Optional[str] | None = Field(None,
                                                          description="A helpful follow-up question to ask the user if their input was INVALID or vague.")
 
