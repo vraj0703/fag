@@ -2,7 +2,8 @@ import aiofiles
 import os
 from logger import logger
 
-class FileManager:
+
+class FileHelper:
     """A utility class for asynchronous file and directory operations."""
 
     async def create_directory(self, path: str):

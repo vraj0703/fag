@@ -1,11 +1,10 @@
 import asyncio
-from logger import logger
 from knowledge_base.knowledge_base import KnowledgeBase
 from assistant.ask_user_assistant import AskUserAssistant
 from assistant.app_color_assistant import MaterialColorSchemeGenerator
 from assistant.generation_assistant import CodeGenerationAssistant
 from managers.base_manager import BaseManager
-from managers.file_manager import FileManager
+from helper.file_helper import FileHelper
 
 
 async def main_bot():
@@ -17,11 +16,11 @@ async def main_bot():
         "ask_user": AskUserAssistant(),
         "scheme_generator": MaterialColorSchemeGenerator(),
         "code_generator": CodeGenerationAssistant(knowledge_base=kb),
-        "file_manager": FileManager(),
+        "file_helper": FileHelper(),
     }
 
     # 3. Initialize the BaseManager with the JSON config and the assistants
-    managers_path = "json/managers.json"  # Or construct an absolute path
+    managers_path = "jsons/managers.json"  # Or construct an absolute path
     base_manager = BaseManager(managers_file_path=managers_path, assistants=assistants)
 
     manager_to_run = base_manager.find_manager("create color scheme")

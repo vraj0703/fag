@@ -1,9 +1,10 @@
 import json
+
+from helper.color_scheme_generator import MaterialColorSchemeGenerator
 from logger import logger
 from assistant.ask_user_assistant import AskUserAssistant
-from assistant.app_color_assistant import MaterialColorSchemeGenerator
 from assistant.generation_assistant import CodeGenerationAssistant
-from managers.file_manager import FileManager
+from helper.file_helper import FileHelper
 
 
 class ColorManager:
@@ -16,7 +17,7 @@ class ColorManager:
             ask_assistant: AskUserAssistant,
             scheme_generator: MaterialColorSchemeGenerator,
             code_generator: CodeGenerationAssistant,
-            file_manager: FileManager,
+            file_manager: FileHelper,
     ):
         """Initializes the manager with all the necessary assistant tools."""
         self.ask_assistant = ask_assistant

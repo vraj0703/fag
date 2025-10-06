@@ -1,7 +1,7 @@
 {
   "managers": [
     {
-      "name": "color_scheme_manager",
+      "name": "create_app",
       "description": "A manager that orchestrates the generation of a Material Design color scheme for a Flutter project.",
       "keywords": [
         "create color scheme",

@@ -1,0 +1,38 @@
+{
+  "name": "assets",
+  "purpose": "Contains all the assets required in project",
+  "children": [
+    {
+      "name": "icons",
+      "purpose": "icon related files"
+    },
+    {
+      "name": "images",
+      "purpose": "all the jpg/png/... files goes here"
+    },
+    {
+      "name": "vector",
+      "purpose": "all the svg... files goes here"
+    },
+    {
+      "name": "animation",
+      "purpose": "all the lottie/rive/... files goes here"
+    },
+    {
+      "name": "jsons",
+      "purpose": "all the jsons files goes here"
+    },
+    {
+      "name": "style_config",
+      "purpose": "style related configs goes here"
+    },
+    {
+      "name": "typefaces",
+      "purpose": "all the fonts files are here"
+    },
+    {
+      "name": "textures",
+      "purpose": "textures files are here"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "name": "lib",
+  "purpose": "The root directory for all Dart code in the Flutter project.",
+  "children": [
+    {
+      "name": "project",
+      "purpose": "Contains project-wide files and configurations that are not specific to any feature.",
+      "children": [
+        {
+          "name": "app",
+          "purpose": "Core application setup, including routing and main application widget."
+        },
+        {
+          "name": "base_widgets",
+          "purpose": "Common and reusable widgets shared across multiple features."
+        },
+        {
+          "name": "channels",
+          "purpose": "Platform-specific communication using platform channels."
+        },
+        {
+          "name": "dependencies",
+          "purpose": "Dependency injection setup and configuration for the entire project."
+        },
+        {
+          "name": "exports",
+          "purpose": "Barrel files that export commonly used files for easier importing."
+        },
+        {
+          "name": "extensions",
+          "purpose": "Dart extension methods to add new functionality to existing classes."
+        },
+        {
+          "name": "global_params",
+          "purpose": "Global parameters, constants, and configurations for the application."
+        },
+        {
+          "name": "localization",
+          "purpose": "Localization and internationalization files for supporting multiple languages."
+        },
+        {
+          "name": "logger",
+          "purpose": "Logging utilities and configurations for debugging and monitoring."
+        },
+        {
+          "name": "theme",
+          "purpose": "Application-wide theme data, including colors, fonts, and styles.",
+          "children": [
+            {
+              "name": "icons",
+              "purpose": "Application-wide icon data"
+            },
+            {
+              "name": "style",
+              "purpose": "Application-wide icon styles"
+            },
+            {
+              "name": "text",
+              "purpose": "Application-wide text styles and font data"
+            },
+            {
+              "name": "color",
+              "purpose": "Application-wide colors"
+            }
+          ]
+        },
+        {
+          "name": "utils",
+          "purpose": "Utility functions and helper classes that are used across the project."
+        }
+      ]
+    },
+    {
+      "name": "features",
+      "purpose": "Contains all the features of the application, with each feature being a self-contained module."
+    }
+  ]
+}

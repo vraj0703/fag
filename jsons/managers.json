@@ -1,0 +1,154 @@
+{
+  "managers": [
+    {
+      "name": "color_scheme_manager",
+      "description": "A manager that orchestrates the generation of a Material Design color scheme for a Flutter project.",
+      "keywords": [
+        "create color scheme",
+        "generate theme colors",
+        "add custom colors"
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "description": "Ask the user for the seed color.",
+          "assistant": "ask_user",
+          "method": "gather_info",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "seed_color",
+                "type": "color hex code",
+                "prompt": "What is the seed color for the color scheme?"
+              }
+            ]
+          },
+          "outputs": {
+            "result": "user_inputs"
+          }
+        },
+        {
+          "id": 2,
+          "description": "Generate Material color schemes from the seed color.",
+          "assistant": "scheme_generator",
+          "method": "generate_material_schemes",
+          "inputs": {
+            "seed_hex": "{{context.user_inputs.seed_color}}"
+          },
+          "outputs": {
+            "result": "schemes"
+          }
+        },
+        {
+          "id": 3,
+          "description": "Write the generated schemes to a JSON file.",
+          "assistant": "file_helper",
+          "method": "write_file",
+          "inputs": {
+            "file_path": "assets/app_colors.json",
+            "content": "{\"light\": {{context.schemes.light}}, \"dark\": {{context.schemes.dark}} }"
+          }
+        },
+        {
+          "id": 4,
+          "description": "Generate the Dart code for the AppColors class.",
+          "assistant": "code_generator",
+          "method": "generate",
+          "inputs": {
+            "user_request": "Generate a complete AppColors.dart file that loads and parses 'assets/app_colors.json' and provides a method to get ThemeData.",
+            "extra_context": "{{context.schemes}}"
+          },
+          "outputs": {
+            "result": "generated_code"
+          }
+        },
+        {
+          "id": 5,
+          "description": "Write the generated Dart code to a file.",
+          "assistant": "file_helper",
+          "method": "write_file",
+          "inputs": {
+            "file_path": "lib/theme/colors/app_colors.dart",
+            "content": "{{context.generated_code}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_folder_structure",
+      "description": "A manager that orchestrates the generation of a folder structure for a Flutter project.",
+      "keywords": [
+        "create folder structure",
+        "generate folder structure",
+        "add folder"
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "description": "Ask the user for the app name.",
+          "assistant": "ask_user",
+          "method": "gather_info",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "app_name",
+                "type": "string in snake case",
+                "prompt": "What do you want to call the the flutter app"
+              }
+            ]
+          },
+          "outputs": {
+            "result": "user_inputs"
+          }
+        },
+        {
+          "id": 2,
+          "description": "Generate flutter create app name command.",
+          "assistant": "shell_assistant",
+          "method": "run_command",
+          "inputs": {
+            "app_name": "{{context.user_inputs.app_name}}"
+          },
+          "outputs": {
+            "result": "0 or 1 based on command execution"
+          }
+        },
+        {
+          "id": 3,
+          "description": "Generate app folder structure",
+          "assistant": "folder_architect",
+          "method": "architect_folder",
+          "inputs": {
+            "json_path": "jsons/app_folder_structure.json"
+          },
+          "output": {
+            "dir_path": "lib/"
+          }
+        },
+        {
+          "id": 4,
+          "description": "Generate assets folder structure",
+          "assistant": "folder_architect",
+          "method": "architect_folder",
+          "inputs": {
+            "json_path": "jsons/assets_folder_structure.json"
+          },
+          "outputs": {
+            "dir_path": "lib/assets/"
+          }
+        },
+        {
+          "id": 5,
+          "description": "Add assets folder in pubspec.yaml",
+          "assistant": "yaml_editor",
+          "method": "add_item",
+          "inputs": {
+            "file_path": "pubspec.yaml",
+            "key_path": "flutter.assets",
+            "folder_json_path": "jsons/assets_folder_structure.json"
+          }
+        }
+      ]
+    }
+  ]
+}
