@@ -41,7 +41,7 @@ class BaseManager:
         """
         if isinstance(value, str):
             # Find all placeholders like {{context.some.nested.value}}
-            placeholders = re.findall(r"\{\{context\.(.*?)\}\}", value)
+            placeholders = re.findall(r"\{\{context\.(.*?)}}", value)
             for placeholder in placeholders:
                 # Retrieve the nested value from the context
                 retrieved_value = self._get_nested_value(context, placeholder)
