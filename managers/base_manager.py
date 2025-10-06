@@ -103,5 +103,5 @@ class BaseManager:
                     context[context_key] = result
                     logger.info(f"Stored step output into context as '{context_key}'")
 
-        logger.info(f"✅ Flow '{manager_config['name']}' completed successfully!")
+        logger.info(f"Flow '{manager_config['name']}' completed successfully!")
 

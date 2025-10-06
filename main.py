@@ -1,7 +1,12 @@
 import asyncio
+import os
+
+from assistant.shell_assistant import ShellAssistant
+from helper.color_scheme_generator import MaterialColorSchemeGenerator
+from helper.folder_architect import FolderArchitect
+from helper.yaml_editor import YamlEditor
 from knowledge_base.knowledge_base import KnowledgeBase
 from assistant.ask_user_assistant import AskUserAssistant
-from assistant.app_color_assistant import MaterialColorSchemeGenerator
 from assistant.generation_assistant import CodeGenerationAssistant
 from managers.base_manager import BaseManager
 from helper.file_helper import FileHelper
@@ -17,13 +22,17 @@ async def main_bot():
         "scheme_generator": MaterialColorSchemeGenerator(),
         "code_generator": CodeGenerationAssistant(knowledge_base=kb),
         "file_helper": FileHelper(),
+        "shell_assistant": ShellAssistant(),
+        "folder_architect": FolderArchitect(),
+        "yaml_editor": YamlEditor(),
     }
 
     # 3. Initialize the BaseManager with the JSON config and the assistants
-    managers_path = "jsons/managers.json"  # Or construct an absolute path
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    managers_path = os.path.join(script_dir, "jsons", "managers.json")  # Or construct an absolute path
     base_manager = BaseManager(managers_file_path=managers_path, assistants=assistants)
 
-    manager_to_run = base_manager.find_manager("create color scheme")
+    manager_to_run = base_manager.find_manager("create app folder structure")
     await base_manager.run_flow(manager_to_run)
 
     # # The main application loop

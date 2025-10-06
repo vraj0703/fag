@@ -75,11 +75,11 @@
       ]
     },
     {
-      "name": "create_folder_structure",
+      "name": "create_app_folder_structure",
       "description": "A manager that orchestrates the generation of a folder structure for a Flutter project.",
       "keywords": [
-        "create folder structure",
-        "generate folder structure",
+        "create app folder structure",
+        "generate app folder structure",
         "add folder"
       ],
       "steps": [
@@ -92,8 +92,8 @@
             "parameters": [
               {
                 "name": "app_name",
-                "type": "string in snake case",
-                "prompt": "What do you want to call the the flutter app"
+                "type": "string in snake_case",
+                "prompt": "What is the name for your new Flutter application?"
               }
             ]
           },
@@ -103,49 +103,54 @@
         },
         {
           "id": 2,
-          "description": "Generate flutter create app name command.",
+          "description": "Generate the flutter command to create a new flutter project.",
           "assistant": "shell_assistant",
-          "method": "run_command",
+          "method": "generate_command",
           "inputs": {
-            "app_name": "{{context.user_inputs.app_name}}"
+            "instruction": "Generate the flutter command to create a new flutter project. flutter create {{context.user_inputs.app_name}}"
           },
           "outputs": {
-            "result": "0 or 1 based on command execution"
+            "result": "flutter_create_dto"
           }
         },
         {
           "id": 3,
-          "description": "Generate app folder structure",
-          "assistant": "folder_architect",
-          "method": "architect_folder",
+          "description": "Execute the 'flutter create' command.",
+          "assistant": "shell_assistant",
+          "method": "run_command",
           "inputs": {
-            "json_path": "jsons/app_folder_structure.json"
-          },
-          "output": {
-            "dir_path": "lib/"
+            "dto": "{{context.flutter_create_dto}}"
           }
         },
         {
           "id": 4,
-          "description": "Generate assets folder structure",
+          "description": "Generate the main app folder structure inside the new project.",
           "assistant": "folder_architect",
           "method": "architect_folder",
           "inputs": {
-            "json_path": "jsons/assets_folder_structure.json"
-          },
-          "outputs": {
-            "dir_path": "lib/assets/"
+            "json_file": "jsons/app_folder_structure.json",
+            "base_path": "{{context.user_inputs.app_name}}"
           }
         },
         {
           "id": 5,
-          "description": "Add assets folder in pubspec.yaml",
-          "assistant": "yaml_editor",
-          "method": "add_item",
+          "description": "Generate the assets folder structure.",
+          "assistant": "folder_architect",
+          "method": "architect_folder",
           "inputs": {
-            "file_path": "pubspec.yaml",
+            "json_file": "jsons/assets_folder_structure.json",
+            "base_path": "{{context.user_inputs.app_name}}"
+          }
+        },
+        {
+          "id": 6,
+          "description": "Add asset directories from JSON to pubspec.yaml.",
+          "assistant": "yaml_editor",
+          "method": "add_asset_dirs_from_json",
+          "inputs": {
+            "pubspec_path": "{{context.user_inputs.app_name}}/pubspec.yaml",
             "key_path": "flutter.assets",
-            "folder_json_path": "jsons/assets_folder_structure.json"
+            "json_path": "jsons/assets_folder_structure.json"
           }
         }
       ]

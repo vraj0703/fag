@@ -70,4 +70,4 @@ class ColorManager:
         logger.info("Step 5: Creating and writing to 'lib/theme/colors/app_colors.dart'.")
         await self.file_manager.write_file("lib/theme/colors/app_colors.dart", context['generated_code'])
 
-        logger.info("✅ 'Color Scheme Generation' flow completed successfully!")
+        logger.info("'Color Scheme Generation' flow completed successfully!")

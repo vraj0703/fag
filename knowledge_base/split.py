@@ -8,8 +8,7 @@ from prompts.read_code_to_analysis import PROMPT_TO_READ_DART_FILE
 
 async def split_str_into_logical_chunks(file_content: str) -> Optional[dict]:
     try:
-        content_preview = file_content[:120].replace('\n', ' ') + '...'
-        logger.info(f"Sending content to LLM for structured analysis: '{content_preview}'")
+        logger.info(f"Sending content to LLM for structured analysis: '{file_content}'")
         # The response content should be a JSON string that we can parse
         response_text = await llm_apis.split(PROMPT_TO_READ_DART_FILE, file_content,
                                              DartFileAnalysis.model_json_schema())
