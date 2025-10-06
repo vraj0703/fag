@@ -36,10 +36,10 @@ class MaterialColorSchemeGenerator:
         return result
 
 
-def test_material_color_scheme():
+async def test_material_color_scheme():
     seed_color = "#6200EE"  # Example seed color
     generator = MaterialColorSchemeGenerator()
-    schemes = generator.generate_material_schemes(seed_color)
+    schemes = await generator.generate_material_schemes(seed_color)
     print("Material Color Schemes from Seed Color:")
     print("Light Scheme:")
     for k, v in schemes['light'].items():

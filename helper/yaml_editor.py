@@ -57,4 +57,5 @@ class YamlEditor:
 if __name__ == "__main__":
     # Example usage
     yaml_file = "C:/Users/vraj0/IdeaProjects/fag_2/config/pubspec.yaml"
-    add_item(yaml_file, "flutter.assets", "images/a_dot_burr.jpeg")
+    editor = YamlEditor()
+    editor.add_item(yaml_file, "flutter.assets", "images/a_dot_burr.jpeg")

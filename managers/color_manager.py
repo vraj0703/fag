@@ -45,7 +45,7 @@ class ColorManager:
 
         # --- Step 2: Generate Material color schemes ---
         logger.info(f"Step 2: Generating Material schemes from seed color '{seed_color}'.")
-        schemes = self.scheme_generator.generate_material_schemes(seed_color)
+        schemes = await self.scheme_generator.generate_material_schemes(seed_color)
         context.update(schemes)
 
         # --- Step 3: Create and write the app_colors.json file ---
