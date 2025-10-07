@@ -2,13 +2,14 @@ import json
 import re
 from logger import logger
 import os
+from pydantic import BaseModel
 
 
 class BaseManager:
     """
     A generic manager that reads JSON configurations to orchestrate
     a sequence of assistant actions to complete a flow. It persists
-    user inputs across sessions.
+    user inputs by merging them into a JSON file.
     """
 
     def __init__(self, managers_file_path: str, assistants: dict, user_input_file_path: str = 'user_input.json'):
@@ -114,21 +115,31 @@ class BaseManager:
                 logger.error(f"Method '{method_name}' not found on assistant '{assistant_name}'. Aborting flow.")
                 return
 
-            # --- Explicitly iterate and format inputs ---
-            raw_inputs = step.get('inputs', {})
-            logger.info(f"Raw inputs for step: {raw_inputs}")
+            # Pass the main context (self.context) directly for placeholder replacement.
+            inputs = self._format_input(step.get('inputs', {}), self.context)
 
-            formatted_inputs = self._format_input(raw_inputs, self.context)
-            logger.info(f"Formatted inputs for step: {formatted_inputs}")
+            result = await method(**inputs)
 
-            result = await method(**formatted_inputs)
+            # Convert Pydantic models to dicts before storing to ensure JSON serializability
+            if isinstance(result, BaseModel):
+                result_to_store = result.model_dump()
+            else:
+                result_to_store = result
 
             # Store the output back into the main context
             if 'outputs' in step:
                 for result_key, context_key in step.get('outputs', {}).items():
                     if result_key == "result":
-                        self.context[context_key] = result
-                        logger.info(f"Stored step output into context as '{context_key}'")
+                        # --- THE FIX: MERGE a new user input with existing ---
+                        if (context_key in self.context and
+                                isinstance(self.context.get(context_key), dict) and
+                                isinstance(result_to_store, dict)):
+                            self.context[context_key].update(result_to_store)
+                            logger.info(f"Updated (merged) context for '{context_key}'")
+                        else:
+                            # Otherwise, just set the value
+                            self.context[context_key] = result_to_store
+                            logger.info(f"Stored step output into context as '{context_key}'")
 
             # After a step that gathers user input, save the updated context
             if assistant_name == 'ask_user':

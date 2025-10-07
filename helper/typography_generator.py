@@ -1,12 +1,9 @@
-import asyncio
-import json
 from typing import Dict, Any
 
 from pydantic import BaseModel, Field
 
-# Assuming these are imported from your project structure
-from assistant.ask_user_assistant import AskUserAssistant
 from logger import logger
+
 
 # --- 1. Pydantic Models to Define the JSON Structure ---
 
@@ -18,12 +15,15 @@ class Style(BaseModel):
     letterSpacing: float
     token: str
 
+
 class Styles(BaseModel):
     md_sys_typescale: Dict[str, Style] = Field(..., alias='md.sys.typescale')
     md_sys_typescale_emphasized: Dict[str, Style] = Field(..., alias='md.sys.typescale.emphasized')
 
+
 class Typography(BaseModel):
     styles: Styles
+
 
 # --- 2. Default Material Design 3 Typescale Data ---
 
@@ -62,7 +62,6 @@ class TypographyStyleGenerator:
 
     def __init__(self):
         """Initializes the conversational collector."""
-        self.collector = AskUserAssistant()
         logger.info('TypographyStyleGenerator initialized.')
 
     def _generate_styles(self, primary_font: str) -> Dict[str, Any]:
@@ -70,64 +69,37 @@ class TypographyStyleGenerator:
         Generates the final 'styles' JSON object by applying the primary font
         to the default Material Design typescales.
         """
-        styles_data = {
-            'md.sys.typescale': {
-                token: {"fontFamily": primary_font, **values, "token": token}
-                for token, values in DEFAULT_TYPESCALE.items()
-            },
-            'md.sys.typescale.emphasized': {
-                token: {"fontFamily": primary_font, **values, "token": token}
-                for token, values in DEFAULT_TYPESCALE_EMPHASIZED.items()
-            }
+        # 1. Create the dictionaries for each typescale
+        typescale_data = {
+            token: {"fontFamily": primary_font, **values, "token": token}
+            for token, values in DEFAULT_TYPESCALE.items()
+        }
+        typescale_emphasized_data = {
+            token: {"fontFamily": primary_font, **values, "token": token}
+            for token, values in DEFAULT_TYPESCALE_EMPHASIZED.items()
         }
 
-        # Validate with Pydantic and convert to dict, ensuring correct aliases
-        return Typography(styles=styles_data).model_dump(by_alias=True)
+        # 2. Create an instance of the Styles model
+        # Pydantic will handle mapping the dictionary to the aliased fields
+        styles_object = Styles(
+            **{
+                'md.sys.typescale': typescale_data,
+                'md.sys.typescale.emphasized': typescale_emphasized_data
+            }
+        )
 
-    async def generate(self) -> Dict[str, Any]:
+        # 3. Pass the validated Styles object to the Typography model
+        typography_model = Typography(styles=styles_object)
+
+        # 4. Validate and convert to dict, ensuring correct aliases
+        return typography_model.model_dump(by_alias=True)
+
+    async def generate(self, base_font) -> Dict[str, Any]:
         """
         Orchestrates the conversational flow to generate the typography JSON.
         """
         logger.info('Starting typography style generation flow...')
-
-        # --- Step 1: Gather the primary font from the user ---
-        params_to_get = [
-            {
-                'name': 'primary_font',
-                'type': 'font name (e.g., Roboto, Inter)',
-                'prompt': 'What is the primary font for the typography styles?'
-            }
-        ]
-
-        user_inputs = await self.collector.gather_info(params_to_get)
-        primary_font = user_inputs.get('primary_font')
-
-        if not primary_font:
-            logger.error('Could not obtain a primary font from the user. Aborting.')
-            return {}
-
-        # --- Step 2: Generate the final JSON structure ---
-        logger.info(f"Generating typography styles with primary font: '{primary_font}'")
-        final_json = self._generate_styles(primary_font)
+        final_json = self._generate_styles(base_font)
 
         logger.info('Typography style generation flow completed successfully.')
         return final_json
-
-
-# --- Example Usage ---
-async def main():
-    """A test function to demonstrate the TypographyStyleGenerator."""
-
-    generator = TypographyStyleGenerator()
-
-    print('--- Starting Typography Style Generator ---')
-    final_styles = await generator.generate()
-    print('--- Generation Complete ---')
-
-    if final_styles:
-        print('\nHere is the generated typography configuration:')
-        # Use json.dumps for pretty printing the final dictionary
-        print(json.dumps(final_styles, indent=2))
-
-if __name__ == '__main__':
-    asyncio.run(main())

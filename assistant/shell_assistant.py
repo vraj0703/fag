@@ -72,11 +72,15 @@ class ShellAssistant:
             logger.error(f"Failed to get a valid command from the LLM: {e}")
             return None
 
-    async def run_command(self, dto: ShellCommand):
+    async def run_command(self, dto: dict):
         """Securely executes a shell command using create_subprocess_exec."""
         if not dto:
             return
 
+        if not isinstance(dto, dict):
+            return
+
+        dto = ShellCommand.model_validate(dto)
         full_command_str = f"{dto.command} {' '.join(dto.args)}"
         print(f"\n🚀 Executing command: {full_command_str}\n")
 
