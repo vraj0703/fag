@@ -1,19 +1,24 @@
 import json
 import re
 from logger import logger
+import os
 
 
 class BaseManager:
     """
     A generic manager that reads JSON configurations to orchestrate
-    a sequence of assistant actions to complete a flow.
+    a sequence of assistant actions to complete a flow. It persists
+    user inputs across sessions.
     """
 
-    def __init__(self, managers_file_path: str, assistants: dict):
+    def __init__(self, managers_file_path: str, assistants: dict, user_input_file_path: str = 'user_input.json'):
         """
-        Initializes the manager with a path to the JSON config and a dictionary of available assistants.
+        Initializes the manager, loading manager definitions and persistent user inputs.
         """
         self.assistants = assistants
+        self.user_input_file_path = user_input_file_path
+        self.context = self._load_user_input()
+
         logger.info(f"Loading manager flows from {managers_file_path}...")
         try:
             with open(managers_file_path, 'r') as f:
@@ -23,6 +28,26 @@ class BaseManager:
             logger.error(f"FATAL: Could not load or parse manager file at '{managers_file_path}'. Error: {e}")
             self.managers = []
 
+    def _load_user_input(self) -> dict:
+        """Loads user input from the specified JSON file if it exists."""
+        if os.path.exists(self.user_input_file_path):
+            logger.info(f"Loading persistent user inputs from {self.user_input_file_path}")
+            try:
+                with open(self.user_input_file_path, 'r') as f:
+                    return json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                return {}
+        return {}
+
+    def _save_user_input(self):
+        """Saves the current context to the user input JSON file."""
+        logger.info(f"Saving context to {self.user_input_file_path}")
+        try:
+            with open(self.user_input_file_path, 'w') as f:
+                json.dump(self.context, f, indent=4)
+        except IOError as e:
+            logger.error(f"Could not write to user_input file: {e}")
+
     def _get_nested_value(self, data_dict, path):
         """Safely retrieves a nested value from a dictionary using a dot-separated path."""
         keys = path.split('.')
@@ -31,25 +56,21 @@ class BaseManager:
             if isinstance(value, dict) and key in value:
                 value = value[key]
             else:
-                return None  # Path not found
+                return None
         return value
 
     def _format_input(self, value, context):
         """
-        Recursively formats input strings, replacing complex placeholders like
-        {{context.user_inputs.seed_color}} with values from the context dictionary.
+        Recursively formats input strings, replacing placeholders like {{context.some.value}}
+        with values from the context dictionary.
         """
         if isinstance(value, str):
-            # Find all placeholders like {{context.some.nested.value}}
             placeholders = re.findall(r"\{\{context\.(.*?)}}", value)
             for placeholder in placeholders:
-                # Retrieve the nested value from the context
                 retrieved_value = self._get_nested_value(context, placeholder)
                 if retrieved_value is not None:
-                    # If the placeholder is the entire string, replace it directly to preserve type
                     if value == f"{{{{context.{placeholder}}}}}":
                         return retrieved_value
-                    # Otherwise, perform a string replacement
                     value = value.replace(f"{{{{context.{placeholder}}}}}", str(retrieved_value))
             return value
         elif isinstance(value, list):
@@ -74,7 +95,6 @@ class BaseManager:
             return
 
         logger.info(f"Starting flow for manager: '{manager_config['name']}'...")
-        context = {}
 
         sorted_steps = sorted(manager_config.get('steps', []), key=lambda x: x.get('id', float('inf')))
 
@@ -94,14 +114,24 @@ class BaseManager:
                 logger.error(f"Method '{method_name}' not found on assistant '{assistant_name}'. Aborting flow.")
                 return
 
-            inputs = self._format_input(step.get('inputs', {}), context)
+            # --- Explicitly iterate and format inputs ---
+            raw_inputs = step.get('inputs', {})
+            logger.info(f"Raw inputs for step: {raw_inputs}")
 
-            result = await method(**inputs)
+            formatted_inputs = self._format_input(raw_inputs, self.context)
+            logger.info(f"Formatted inputs for step: {formatted_inputs}")
 
-            for result_key, context_key in step.get('outputs', {}).items():
-                if result_key == "result":
-                    context[context_key] = result
-                    logger.info(f"Stored step output into context as '{context_key}'")
+            result = await method(**formatted_inputs)
+
+            # Store the output back into the main context
+            if 'outputs' in step:
+                for result_key, context_key in step.get('outputs', {}).items():
+                    if result_key == "result":
+                        self.context[context_key] = result
+                        logger.info(f"Stored step output into context as '{context_key}'")
+
+            # After a step that gathers user input, save the updated context
+            if assistant_name == 'ask_user':
+                self._save_user_input()
 
         logger.info(f"Flow '{manager_config['name']}' completed successfully!")
-

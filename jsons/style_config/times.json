@@ -1,0 +1,10 @@
+{
+  "durations": {
+    "fast": 250,
+    "med": 500,
+    "slow": 800,
+    "extraSlow": 1200,
+    "pageTransition": 180,
+    "customFade": 1000
+  }
+}

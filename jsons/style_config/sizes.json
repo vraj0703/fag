@@ -1,0 +1,12 @@
+{
+  "sizes": {
+    "maxContentWidth1": 900,
+    "maxContentWidth2": 700,
+    "maxContentWidth3": 550,
+    "minAppSize": {
+      "width": 400,
+      "height": 700
+    },
+    "customWidth": 123.45
+  }
+}

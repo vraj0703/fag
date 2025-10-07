@@ -16,7 +16,8 @@ class AnalysisResult(BaseModel):
     status: Literal["VALID", "INVALID", "NEEDS_CONFIRMATION"] = Field(description="The status of the user's input.")
     value: Any | None = Field(None,
                               description="The final, extracted value if the status is VALID or NEEDS_CONFIRMATION.")
-    reasoning: Optional[str] = Field(None, description="A brief explanation of the AI's decision, especially if the status is not VALID.")
+    reasoning: Optional[str] = Field(None,
+                                     description="A brief explanation of the AI's decision, especially if the status is not VALID.")
     clarification_question: Optional[str] | None = Field(None,
                                                          description="A helpful follow-up question to ask the user if their input was INVALID or vague.")
 
@@ -105,6 +106,30 @@ class AskUserAssistant:
             collected_data[param['name']] = await self.collect_parameter(param)
 
         return collected_data
+
+    async def gather_list(self, item_name: str, parameters: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+        """
+        Interactively gathers a list of complex objects from the user.
+        Args:
+            item_name (str): The name of the item being collected (e.g., 'font family').
+            parameters (list): The list of parameters that define a single item.
+        Returns:
+            A list of dictionaries, where each dictionary is a collected item.
+        """
+        collected_items = []
+        while True:
+            add_another_response = input(f"🤖 Would you like to add a {item_name}? (yes/no) > ").lower()
+            if add_another_response not in ['y', 'yes']:
+                break
+
+            logger.info(f"Collecting details for a new {item_name}...")
+            # Use the existing gather_info to collect one full item
+            item_data = await self.gather_info(parameters)
+            collected_items.append(item_data)
+            logger.info(f"Added {item_name}: {item_data}")
+
+        logger.info(f"Finished collecting {len(collected_items)} {item_name}(s).")
+        return collected_items
 
 
 # --- Example Usage ---

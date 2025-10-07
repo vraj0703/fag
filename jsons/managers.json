@@ -1,81 +1,7 @@
 {
   "managers": [
     {
-      "name": "color_scheme_manager",
-      "description": "A manager that orchestrates the generation of a Material Design color scheme for a Flutter project.",
-      "keywords": [
-        "create color scheme",
-        "generate theme colors",
-        "add custom colors"
-      ],
-      "steps": [
-        {
-          "id": 1,
-          "description": "Ask the user for the seed color.",
-          "assistant": "ask_user",
-          "method": "gather_info",
-          "inputs": {
-            "parameters": [
-              {
-                "name": "seed_color",
-                "type": "color hex code",
-                "prompt": "What is the seed color for the color scheme?"
-              }
-            ]
-          },
-          "outputs": {
-            "result": "user_inputs"
-          }
-        },
-        {
-          "id": 2,
-          "description": "Generate Material color schemes from the seed color.",
-          "assistant": "scheme_generator",
-          "method": "generate_material_schemes",
-          "inputs": {
-            "seed_hex": "{{context.user_inputs.seed_color}}"
-          },
-          "outputs": {
-            "result": "schemes"
-          }
-        },
-        {
-          "id": 3,
-          "description": "Write the generated schemes to a JSON file.",
-          "assistant": "file_helper",
-          "method": "write_file",
-          "inputs": {
-            "file_path": "assets/app_colors.json",
-            "content": "{\"light\": {{context.schemes.light}}, \"dark\": {{context.schemes.dark}} }"
-          }
-        },
-        {
-          "id": 4,
-          "description": "Generate the Dart code for the AppColors class.",
-          "assistant": "code_generator",
-          "method": "generate",
-          "inputs": {
-            "user_request": "Generate a complete AppColors.dart file that loads and parses 'assets/app_colors.json' and provides a method to get ThemeData.",
-            "extra_context": "{{context.schemes}}"
-          },
-          "outputs": {
-            "result": "generated_code"
-          }
-        },
-        {
-          "id": 5,
-          "description": "Write the generated Dart code to a file.",
-          "assistant": "file_helper",
-          "method": "write_file",
-          "inputs": {
-            "file_path": "lib/theme/colors/app_colors.dart",
-            "content": "{{context.generated_code}}"
-          }
-        }
-      ]
-    },
-    {
-      "name": "create_app_folder_structure",
+      "name": "folder_structure_manager",
       "description": "A manager that orchestrates the generation of a folder structure for a Flutter project.",
       "keywords": [
         "create app folder structure",
@@ -151,6 +77,164 @@
             "pubspec_path": "{{context.user_inputs.app_name}}/pubspec.yaml",
             "key_path": "flutter.assets",
             "json_path": "jsons/assets_folder_structure.json"
+          }
+        }
+      ]
+    },
+    {
+      "name": "style_config_manager",
+      "description": "A manager that orchestrates the generation of a style config for a Flutter project.",
+      "keywords": [
+        "create style config",
+        "generate style config"
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "description": "Copy style jsons into project assets",
+          "assistant": "file_helper",
+          "method": "copy_directory_contents",
+          "inputs": {
+            "source_dir": "jsons/style_config/",
+            "destination_dir": "{{context.user_inputs.app_name}}/assets/style_config/"
+          },
+          "outputs": {
+            "result": "config files copied to the assets"
+          }
+        },
+        {
+          "id": 2,
+          "description": "Ask the user for the seed color.",
+          "assistant": "ask_user",
+          "method": "gather_info",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "seed_color",
+                "type": "color hex code",
+                "prompt": "What is the seed color for the color scheme?"
+              }
+            ]
+          },
+          "outputs": {
+            "result": "user_inputs"
+          }
+        },
+        {
+          "id": 3,
+          "description": "Generate Material color schemes from the seed color.",
+          "assistant": "scheme_generator",
+          "method": "generate_material_schemes",
+          "inputs": {
+            "seed_hex": "{{context.user_inputs.seed_color}}"
+          },
+          "outputs": {
+            "result": "schemes"
+          }
+        },
+        {
+          "id": 4,
+          "description": "Write the generated schemes to a JSON file.",
+          "assistant": "file_helper",
+          "method": "write_file",
+          "inputs": {
+            "file_path": "assets/app_colors.json",
+            "content": "{\"light\": {{context.schemes.light}}, \"dark\": {{context.schemes.dark}} }"
+          }
+        },
+        {
+          "id": 5,
+          "description": "Ask the user for the primary font for the typescale.",
+          "assistant": "ask_user",
+          "method": "gather_info",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "primary_font",
+                "type": "font name",
+                "prompt": "What is the primary font for the typescale (e.g., Roboto)?"
+              }
+            ]
+          },
+          "outputs": {
+            "result": "user_inputs"
+          }
+        },
+        {
+          "id": 6,
+          "description": "Generate the typography JSON based on the user's font.",
+          "assistant": "typography_generator",
+          "method": "generate",
+          "inputs": {
+            "base_font": "{{context.user_inputs.primary_font}}"
+          },
+          "outputs": {
+            "result": "typography_json"
+          }
+        },
+        {
+          "id": 7,
+          "description": "Write the generated typography styles to a JSON file.",
+          "assistant": "file_helper",
+          "method": "write_file",
+          "inputs": {
+            "file_path": "assets/style_config/primary_font.json",
+            "content": "{{context.typography_json}}"
+          }
+        },
+        {
+          "id": 8,
+          "description": "Iteratively ask the user for font family details.",
+          "assistant": "ask_user",
+          "method": "gather_list",
+          "inputs": {
+            "item_name": "font_family",
+            "parameters": [
+              {
+                "name": "family",
+                "type": "font family name (e.g., Tenor)",
+                "prompt": "What is the font family name?"
+              },
+              {
+                "name": "fonts",
+                "type": "comma-separated file paths",
+                "prompt": "Enter the asset paths for the font files (e.g., assets/fonts/Tenor-Regular.ttf)"
+              },
+              {
+                "name": "locale",
+                "type": "language code (e.g., en, zh)",
+                "prompt": "What is the locale for this font?"
+              },
+              {
+                "name": "fontFeatures",
+                "type": "comma-separated list (e.g., kern, liga)",
+                "prompt": "List any font features to apply (or press Enter for none)."
+              }
+            ]
+          },
+          "outputs": {
+            "result": "font_families_list"
+          }
+        },
+        {
+          "id": 9,
+          "description": "Write the collected font families to a JSON file.",
+          "assistant": "file_helper",
+          "method": "write_file",
+          "inputs": {
+            "file_path": "assets/style_config/font_family.json",
+            "content": "{{context.font_families_list}}"
+          }
+        },
+        {
+          "id": 10,
+          "description": "Add the collected font families to the project's pubspec.yaml.",
+          "assistant": "yaml_editor",
+          "method": "add_font_families_from_list",
+          "inputs": {
+            "file_path": "pubspec.yaml",
+            "key_path": "flutter.fonts",
+            "font_families_list": "{{context.font_families_list}}"
           }
         }
       ]

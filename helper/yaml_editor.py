@@ -1,6 +1,8 @@
 import asyncio
 import json
 from pathlib import Path
+from typing import List, Dict, Any
+
 from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 from logger import logger
@@ -131,6 +133,67 @@ class YamlEditor:
                 node[k] = {}
             node = node[k]
         return node
+
+    async def add_font_families_from_list(self, file_path: str, key_path: str, font_families_list: List[Dict[str, Any]]):
+        """
+        Asynchronously adds a list of font families to a YAML file, transforming
+        the input structure to the required pubspec.yaml format.
+        """
+        try:
+            await asyncio.to_thread(
+                self._sync_add_font_families, file_path, key_path, font_families_list
+            )
+            return {'status': 'success'}
+        except Exception as e:
+            logger.error(f'Failed to add font families to YAML file {file_path}: {e}', exc_info=True)
+            return {'status': 'error', 'message': str(e)}
+
+    def _sync_add_font_families(self, file_path: str, key_path: str, font_families_list: List[Dict[str, Any]]):
+        """The synchronous logic for transforming and adding font families."""
+        yaml = YAML()
+        yaml.indent(mapping=2, sequence=4, offset=2)
+        path = Path(file_path)
+
+        data = {}
+        if path.exists():
+            with open(path, 'r', encoding='utf-8') as f:
+                data = yaml.load(f) or {}
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+
+        keys = key_path.split('.')
+        node = data
+        for k in keys[:-1]:
+            node = node.setdefault(k, {})
+
+        final_key = keys[-1]
+        font_list_in_yaml = node.setdefault(final_key, [])
+
+        # Create a set of existing family names for quick lookup
+        existing_families = {f['family'] for f in font_list_in_yaml if 'family' in f}
+
+        for font_family in font_families_list:
+            family_name = font_family.get('family')
+            if not family_name or family_name in existing_families:
+                logger.warning(f"Skipping duplicate or invalid font family: '{family_name}'")
+                continue
+
+            # Transform the 'fonts' list from simple strings to dictionaries with an 'asset' key
+            transformed_fonts = [{'asset': path} for path in font_family.get('fonts', [])]
+
+            new_font_entry = {
+                'family': family_name,
+                'fonts': transformed_fonts
+            }
+
+            font_list_in_yaml.append(new_font_entry)
+            existing_families.add(family_name)
+            logger.info(f"Prepared font family '{family_name}' for inclusion in {file_path}")
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            yaml.dump(data, f)
+        logger.info(f'Successfully updated font families under key "{key_path}" in {file_path}')
+
 
 
 if __name__ == "__main__":

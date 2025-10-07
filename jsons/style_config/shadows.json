@@ -1,0 +1,26 @@
+{
+  "shadows": {
+    "textSoft": [
+      {
+        "color": 4278190080,
+        "alpha": 0.20,
+        "offset": {
+          "dx": 0,
+          "dy": 1
+        },
+        "blurRadius": 2
+      }
+    ],
+    "textStrong": [
+      {
+        "color": 4278190080,
+        "alpha": 0.8,
+        "offset": {
+          "dx": 0,
+          "dy": 6
+        },
+        "blurRadius": 12
+      }
+    ]
+  }
+}
