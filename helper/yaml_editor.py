@@ -134,7 +134,8 @@ class YamlEditor:
             node = node[k]
         return node
 
-    async def add_font_families_from_list(self, file_path: str, key_path: str, font_families_list: List[Dict[str, Any]]):
+    async def add_font_families_from_list(self, file_path: str, key_path: str,
+                                          font_families_list: List[Dict[str, Any]]):
         """
         Asynchronously adds a list of font families to a YAML file, transforming
         the input structure to the required pubspec.yaml format.
@@ -169,7 +170,6 @@ class YamlEditor:
         final_key = keys[-1]
         font_list_in_yaml = node.setdefault(final_key, [])
 
-        # Create a set of existing family names for quick lookup
         existing_families = {f['family'] for f in font_list_in_yaml if 'family' in f}
 
         for font_family in font_families_list:
@@ -178,8 +178,13 @@ class YamlEditor:
                 logger.warning(f"Skipping duplicate or invalid font family: '{family_name}'")
                 continue
 
-            # Transform the 'fonts' list from simple strings to dictionaries with an 'asset' key
-            transformed_fonts = [{'asset': path} for path in font_family.get('fonts', [])]
+            font_path = font_family.get('fonts')
+            if not font_path:
+                logger.warning(f"Skipping font family '{family_name}' due to missing font path.")
+                continue
+
+            # Correctly structure the 'fonts' list for pubspec.yaml
+            transformed_fonts = [{'asset': font_path}]
 
             new_font_entry = {
                 'family': family_name,
@@ -193,7 +198,6 @@ class YamlEditor:
         with open(file_path, 'w', encoding='utf-8') as f:
             yaml.dump(data, f)
         logger.info(f'Successfully updated font families under key "{key_path}" in {file_path}')
-
 
 
 if __name__ == "__main__":

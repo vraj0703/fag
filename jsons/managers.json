@@ -179,7 +179,7 @@
           "method": "write_file",
           "inputs": {
             "file_path": "{{context.user_inputs.app_name}}/assets/style_config/primary_font.json",
-            "content": "{ {{context.typography_json}} }"
+            "content": "{{context.typography_json}}"
           }
         },
         {
@@ -223,7 +223,7 @@
           "method": "write_file",
           "inputs": {
             "file_path": "{{context.user_inputs.app_name}}/assets/style_config/font_family.json",
-            "content": "{ {{context.font_families_list}} }"
+            "content": "{{context.font_families_list}}"
           }
         },
         {

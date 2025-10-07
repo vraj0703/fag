@@ -1,0 +1,4 @@
+- Add retry mechanism, if command fails retry the step at least once automatically and another by user input
+- user_input.json config should be renamed as app_name.json, and if json exists act accordingly
+- add to skip step if user_input.json has config value
+- 

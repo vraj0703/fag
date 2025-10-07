@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 
 import aiofiles
@@ -23,12 +24,17 @@ class FileHelper:
     async def write_file(self, file_path: str, content: str) -> bool:
         """Asynchronously writes content to a file, creating parent directories if needed."""
         try:
+            content_to_write = content
+            if isinstance(content, (dict, list)):
+                # Use json.dumps for proper JSON formatting (double quotes)
+                content_to_write = json.dumps(content, indent=2)
+
             parent_dir = os.path.dirname(file_path)
             if not os.path.exists(parent_dir):
                 await self._create_directory(parent_dir)
 
             async with aiofiles.open(file_path, 'w', encoding='utf-8') as f:
-                await f.write(content)
+                await f.write(content_to_write)
             logger.info(f"Successfully wrote content to {file_path}")
             return True
         except Exception as e:

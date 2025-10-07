@@ -62,22 +62,43 @@ class BaseManager:
 
     def _format_input(self, value, context):
         """
-        Recursively formats input strings, replacing placeholders like {{context.some.value}}
-        with values from the context dictionary.
+        Recursively formats input strings, replacing complex placeholders like
+        {{context.schemes.light}} with values from the context dictionary,
+        ensuring correct JSON formatting.
         """
         if isinstance(value, str):
+            # Case 1: The entire string is a placeholder.
+            # Return the raw object to preserve its type (dict, list, etc.).
+            match = re.fullmatch(r"\{\{context\.(.*?)}}", value)
+            if match:
+                placeholder = match.group(1)
+                return self._get_nested_value(context, placeholder)
+
+            # Case 2: The placeholder is embedded within a larger string.
+            # We need to serialize objects to valid JSON before embedding.
             placeholders = re.findall(r"\{\{context\.(.*?)}}", value)
             for placeholder in placeholders:
                 retrieved_value = self._get_nested_value(context, placeholder)
+
                 if retrieved_value is not None:
-                    if value == f"{{{{context.{placeholder}}}}}":
-                        return retrieved_value
-                    value = value.replace(f"{{{{context.{placeholder}}}}}", str(retrieved_value))
+                    # If the retrieved value is a dict or list, serialize it to a
+                    # JSON string with double quotes. Otherwise, convert to a plain string.
+                    if isinstance(retrieved_value, (dict, list)):
+                        replacement = json.dumps(retrieved_value)
+                    else:
+                        replacement = str(retrieved_value)
+
+                    value = value.replace(f"{{{{context.{placeholder}}}}}", replacement)
             return value
+
         elif isinstance(value, list):
+            # Recursively format each item in the list.
             return [self._format_input(item, context) for item in value]
         elif isinstance(value, dict):
+            # Recursively format each value in the dictionary.
             return {k: self._format_input(v, context) for k, v in value.items()}
+
+        # Return the value as-is if it's not a string, list, or dict.
         return value
 
     def find_manager(self, user_input: str):

@@ -133,7 +133,7 @@ async def test_shell_assistant():
                 return
 
         # 3. Securely run the command
-        await assistant.run_command(command_dto)
+        await assistant.run_command(command_dto.model_dump())
 
 
 if __name__ == "__main__":

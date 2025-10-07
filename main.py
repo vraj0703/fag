@@ -4,6 +4,7 @@ import os
 from assistant.shell_assistant import ShellAssistant
 from helper.color_scheme_generator import MaterialColorSchemeGenerator
 from helper.folder_architect import FolderArchitect
+from helper.typography_generator import TypographyStyleGenerator
 from helper.yaml_editor import YamlEditor
 from knowledge_base.knowledge_base import KnowledgeBase
 from assistant.ask_user_assistant import AskUserAssistant
@@ -25,6 +26,7 @@ async def main_bot():
         "shell_assistant": ShellAssistant(),
         "folder_architect": FolderArchitect(),
         "yaml_editor": YamlEditor(),
+        "typography_generator": TypographyStyleGenerator(),
     }
 
     # 3. Initialize the BaseManager with the JSON config and the assistants
@@ -33,6 +35,9 @@ async def main_bot():
     base_manager = BaseManager(managers_file_path=managers_path, assistants=assistants)
 
     manager_to_run = base_manager.find_manager("create app folder structure")
+    await base_manager.run_flow(manager_to_run)
+
+    manager_to_run = base_manager.find_manager("create style config")
     await base_manager.run_flow(manager_to_run)
 
     # # The main application loop
