@@ -238,6 +238,71 @@
           }
         }
       ]
+    },
+    {
+      "name": "dependency_manager",
+      "description": "A manager that orchestrates the addition of dependency for a Flutter project.",
+      "keywords": [
+        "add git project",
+        "add git dependency"
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "description": "Ask the user for the seed color.",
+          "assistant": "ask_user",
+          "method": "gather_info",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "package_name",
+                "type": "string",
+                "prompt": "What github repository you want to add?"
+              },
+              {
+                "name": "git_url",
+                "type": "string",
+                "prompt": "What github repository url?"
+              }
+            ]
+          },
+          "outputs": {
+            "result": "user_inputs"
+          }
+        },
+        {
+          "id": 2,
+          "description": "Add the github to the project's pubspec.yaml.",
+          "assistant": "yaml_editor",
+          "method": "add_git_dependency",
+          "inputs": {
+            "file_path": "{{context.user_inputs.app_name}}/pubspec.yaml",
+            "package_name": "{{context.user_inputs.package_name}}",
+            "git_url": "{{context.user_inputs.git_url}}"
+          }
+        },
+        {
+          "id": 3,
+          "description": "Generate the flutter command to get pub.",
+          "assistant": "shell_assistant",
+          "method": "generate_command",
+          "inputs": {
+            "instruction": "Generate the flutter command to get pub"
+          },
+          "outputs": {
+            "result": "flutter_pub_get"
+          }
+        },
+        {
+          "id": 3,
+          "description": "Execute the 'flutter create' command.",
+          "assistant": "shell_assistant",
+          "method": "run_command",
+          "inputs": {
+            "dto": "{{context.flutter_pub_get}}"
+          }
+        }
+      ]
     }
   ]
 }

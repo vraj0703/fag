@@ -199,6 +199,52 @@ class YamlEditor:
             yaml.dump(data, f)
         logger.info(f'Successfully updated font families under key "{key_path}" in {file_path}')
 
+    async def add_git_dependency(self, file_path: str, package_name: str, git_url: str):
+        """
+        Asynchronously adds a Git dependency to a pubspec.yaml file.
+        """
+        try:
+            await asyncio.to_thread(
+                self._sync_add_git_dependency, file_path, package_name, git_url
+            )
+            return {'status': 'success'}
+        except Exception as e:
+            logger.error(f'Failed to add Git dependency to YAML file {file_path}: {e}', exc_info=True)
+            return {'status': 'error', 'message': str(e)}
+
+    def _sync_add_git_dependency(self, file_path: str, package_name: str, git_url: str):
+        """The synchronous logic for adding a Git dependency."""
+        yaml = YAML()
+        yaml.indent(mapping=2, sequence=4, offset=2)
+        path = Path(file_path)
+
+        if not path.exists():
+            raise FileNotFoundError(f"The file {file_path} was not found.")
+
+        with open(path, 'r', encoding='utf-8') as f:
+            data = yaml.load(f) or {}
+
+        # Navigate to the dependencies section, creating it if it doesn't exist
+        dependencies = data.setdefault('dependencies', {})
+
+        # Check if the package already exists
+        if package_name in dependencies:
+            logger.warning(f"Dependency '{package_name}' already exists in {file_path}. Skipping.")
+            return
+
+        # Add the new Git dependency
+        dependencies[package_name] = {
+            'git': {
+                'url': git_url
+            }
+        }
+        logger.info(f"Prepared Git dependency '{package_name}' for inclusion in {file_path}")
+
+        with open(path, 'w', encoding='utf-8') as f:
+            yaml.dump(data, f)
+        logger.info(f'Successfully added Git dependency "{package_name}" to {file_path}')
+
+
 
 if __name__ == "__main__":
     # Example usage
